@@ -95,7 +95,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <Sparkles className="w-3 h-3" />
               <span className="hidden sm:inline">
-                {hasGeminiKey ? 'Gemini 3.8 Conectado' : 'Gemini: Modo Local'}
+                {hasGeminiKey ? 'Gemini AI Conectado' : 'Gemini: Modo Local'}
               </span>
             </div>
 

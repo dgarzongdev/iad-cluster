@@ -185,23 +185,29 @@ export const Module7GeminiInsights: React.FC<Module7GeminiInsightsProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={handleGenerateInsights}
-            disabled={isGenerating}
-            className="py-3 px-6 rounded-xl font-bold text-xs bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg shadow-indigo-500/25 flex items-center gap-2 transition disabled:opacity-50"
-          >
-            {isGenerating ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Analizando con Gemini 3.8 Flash...</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4" />
-                <span>{insights ? 'Regenerar Insights IA' : 'Generar Insights con Gemini'}</span>
-              </>
-            )}
-          </button>
+          <div className="flex flex-col items-end gap-1.5">
+            <div className="text-[11px] text-emerald-300 bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full inline-flex items-center gap-1.5 font-medium">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Token Google AI Studio Configurado (Free Tier)</span>
+            </div>
+            <button
+              onClick={handleGenerateInsights}
+              disabled={isGenerating}
+              className="py-3 px-6 rounded-xl font-bold text-xs bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg shadow-indigo-500/25 flex items-center gap-2 transition disabled:opacity-50"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Analizando con Gemini AI...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  <span>{insights ? 'Regenerar Insights IA' : 'Generar Insights con Gemini'}</span>
+                </>
+              )}
+            </button>
+          </div>
 
           {insights && (
             <button

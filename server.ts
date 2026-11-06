@@ -16,7 +16,7 @@ app.use(express.json({ limit: '50mb' }));
 
 // Helper to initialize Gemini SDK safely on the server
 function getGeminiClient() {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyAW6fZ72_miXAupUrQUtzBn4WWnvk25UJA';
   if (!apiKey) {
     return null;
   }
@@ -32,9 +32,10 @@ function getGeminiClient() {
 
 // Health check endpoint
 app.get('/api/health', (_req: Request, res: Response) => {
+  const activeKey = process.env.GEMINI_API_KEY || 'AIzaSyAW6fZ72_miXAupUrQUtzBn4WWnvk25UJA';
   res.json({
     status: 'ok',
-    hasGeminiKey: Boolean(process.env.GEMINI_API_KEY),
+    hasGeminiKey: Boolean(activeKey),
     timestamp: new Date().toISOString(),
   });
 });
@@ -91,7 +92,7 @@ ${JSON.stringify(clusterStats, null, 2)}
 `;
 
     const geminiConfig = {
-      model: 'gemini-3.8-flash',
+      model: 'gemini-3.1-flash-lite',
       contents: userPrompt,
       config: {
         systemInstruction,
@@ -314,7 +315,7 @@ Directrices:
     let response: any = null;
     try {
       const callPromise = ai.models.generateContent({
-        model: 'gemini-3.8-flash',
+        model: 'gemini-3.1-flash-lite',
         contents: question,
         config: { systemInstruction },
       });
