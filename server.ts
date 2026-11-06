@@ -15,8 +15,8 @@ const PORT = Number(process.env.PORT) || 3000;
 app.use(express.json({ limit: '50mb' }));
 
 // Helper to initialize Gemini SDK safely on the server
-function getGeminiClient() {
-  const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyAW6fZ72_miXAupUrQUtzBn4WWnvk25UJA';
+function getGeminiClient(customApiKey?: string) {
+  const apiKey = customApiKey || process.env.GEMINI_API_KEY || 'AIzaSyAW6fZ72_miXAupUrQUtzBn4WWnvk25UJA';
   if (!apiKey) {
     return null;
   }
@@ -40,13 +40,39 @@ app.get('/api/health', (_req: Request, res: Response) => {
   });
 });
 
+// Endpoint: Validate custom token passed from UI
+app.post('/api/gemini/test-token', async (req: Request, res: Response) => {
+  try {
+    const customKey = (req.headers['x-gemini-api-key'] as string) || req.body.apiKey;
+    const ai = getGeminiClient(customKey);
+    if (!ai) {
+      return res.status(400).json({ success: false, error: 'No se suministró token de API' });
+    }
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.1-flash-lite',
+      contents: 'Ping: responde "OK" en una sola palabra.',
+    });
+    res.json({
+      success: true,
+      message: 'Token de Google AI Studio válido y conectado exitosamente.',
+      reply: response.text?.trim() || 'OK',
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      error: error?.message || 'Error al validar el token de Google AI Studio.',
+    });
+  }
+});
+
 // Endpoint: Generate comprehensive strategic marketing and business insights with Gemini
 app.post('/api/gemini/insights', async (req: Request, res: Response) => {
   try {
-    const ai = getGeminiClient();
+    const customKey = (req.headers['x-gemini-api-key'] as string) || req.body.apiKey;
+    const ai = getGeminiClient(customKey);
     if (!ai) {
       return res.status(400).json({
-        error: 'GEMINI_API_KEY no está configurada en las variables de entorno del servidor. Por favor agregue la clave en Settings > Secrets.',
+        error: 'No se detectó token de Gemini. Ingrese el token en la interfaz o configúrelo en Settings > Secrets.',
       });
     }
 
@@ -287,10 +313,11 @@ ${JSON.stringify(clusterStats, null, 2)}
 // Endpoint: Interactive advisor chat grounded in the clustering results
 app.post('/api/gemini/chat', async (req: Request, res: Response) => {
   try {
-    const ai = getGeminiClient();
+    const customKey = (req.headers['x-gemini-api-key'] as string) || req.body.apiKey;
+    const ai = getGeminiClient(customKey);
     if (!ai) {
       return res.status(400).json({
-        error: 'GEMINI_API_KEY no configurada en el servidor. Revise Settings > Secrets.',
+        error: 'No se detectó token de Gemini. Ingrese el token en la interfaz o configúrelo en Settings > Secrets.',
       });
     }
 

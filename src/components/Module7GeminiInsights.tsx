@@ -13,6 +13,7 @@ import {
   ShieldAlert,
   Zap,
   Award,
+  Key,
 } from 'lucide-react';
 import {
   KMeansResult,
@@ -28,6 +29,8 @@ interface Module7GeminiInsightsProps {
   sector: string;
   analysisGoal: string;
   insights: GeminiInsights | null;
+  userApiKey?: string;
+  onOpenApiKeyModal?: () => void;
   onInsightsGenerated: (insights: GeminiInsights) => void;
   onProceedToDashboard: () => void;
 }
@@ -39,6 +42,8 @@ export const Module7GeminiInsights: React.FC<Module7GeminiInsightsProps> = ({
   sector,
   analysisGoal,
   insights,
+  userApiKey = '',
+  onOpenApiKeyModal,
   onInsightsGenerated,
   onProceedToDashboard,
 }) => {
@@ -93,8 +98,11 @@ export const Module7GeminiInsights: React.FC<Module7GeminiInsightsProps> = ({
 
       const response = await fetch('/api/gemini/insights', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        headers: {
+          'Content-Type': 'application/json',
+          ...(userApiKey ? { 'x-gemini-api-key': userApiKey } : {}),
+        },
+        body: JSON.stringify({ ...payload, apiKey: userApiKey }),
       });
 
       const resData = await response.json();
@@ -141,8 +149,11 @@ export const Module7GeminiInsights: React.FC<Module7GeminiInsightsProps> = ({
 
       const response = await fetch('/api/gemini/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: userText, context }),
+        headers: {
+          'Content-Type': 'application/json',
+          ...(userApiKey ? { 'x-gemini-api-key': userApiKey } : {}),
+        },
+        body: JSON.stringify({ question: userText, context, apiKey: userApiKey }),
       });
 
       const resData = await response.json();
@@ -186,9 +197,26 @@ export const Module7GeminiInsights: React.FC<Module7GeminiInsightsProps> = ({
 
         <div className="flex items-center gap-3">
           <div className="flex flex-col items-end gap-1.5">
-            <div className="text-[11px] text-emerald-300 bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full inline-flex items-center gap-1.5 font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Token Google AI Studio Configurado (Free Tier)</span>
+            <div className="flex items-center gap-2">
+              <div className="text-[11px] text-emerald-300 bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full inline-flex items-center gap-1.5 font-medium">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>
+                  {userApiKey
+                    ? `Token Activo: ${userApiKey.substring(0, 6)}...${userApiKey.substring(userApiKey.length - 4)}`
+                    : 'Token Google AI Studio Configurado'}
+                </span>
+              </div>
+              {onOpenApiKeyModal && (
+                <button
+                  type="button"
+                  onClick={onOpenApiKeyModal}
+                  className="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-full transition inline-flex items-center gap-1 cursor-pointer font-medium"
+                  title="Configurar o cambiar token en la interfaz"
+                >
+                  <Key className="w-3 h-3 text-cyan-300" />
+                  <span>Configurar Token</span>
+                </button>
+              )}
             </div>
             <button
               onClick={handleGenerateInsights}

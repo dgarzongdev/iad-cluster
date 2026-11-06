@@ -10,6 +10,7 @@ import { Module6Profiles } from './components/Module6Profiles';
 import { Module7GeminiInsights } from './components/Module7GeminiInsights';
 import { Module8ExecutiveDashboard } from './components/Module8ExecutiveDashboard';
 import { Module9Export } from './components/Module9Export';
+import { ApiKeyModal } from './components/ApiKeyModal';
 
 import {
   ColumnMetadata,
@@ -44,6 +45,20 @@ export default function App() {
   const [activeStep, setActiveStep] = useState<StepId>('ingestion');
   const [hasGeminiKey, setHasGeminiKey] = useState<boolean>(true);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState<boolean>(false);
+  const [userApiKey, setUserApiKey] = useState<string>(() => {
+    return localStorage.getItem('clusteriq_user_gemini_token') || 'AIzaSyAW6fZ72_miXAupUrQUtzBn4WWnvk25UJA';
+  });
+
+  const handleSaveApiKey = (newKey: string) => {
+    setUserApiKey(newKey);
+    if (newKey) {
+      localStorage.setItem('clusteriq_user_gemini_token', newKey);
+      setHasGeminiKey(true);
+    } else {
+      localStorage.removeItem('clusteriq_user_gemini_token');
+    }
+  };
 
   // Module 1 State: Raw Data & Context
   const [rawRecords, setRawRecords] = useState<Record<string, any>[]>([]);
@@ -435,6 +450,7 @@ export default function App() {
         hasGeminiKey={hasGeminiKey}
         onLoadReferencePreset={loadBenchmarkDataset}
         onResetAll={() => setActiveStep('ingestion')}
+        onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
         isProcessing={isProcessing}
       />
 
@@ -527,6 +543,8 @@ export default function App() {
             sector={sector}
             analysisGoal={analysisGoal}
             insights={geminiInsights}
+            userApiKey={userApiKey}
+            onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
             onInsightsGenerated={(ins) => setGeminiInsights(ins)}
             onProceedToDashboard={() => setActiveStep('dashboard')}
           />
@@ -570,6 +588,14 @@ export default function App() {
           </span>
         </div>
       </footer>
+
+      {/* Modal for User API Key Configuration */}
+      <ApiKeyModal
+        isOpen={isApiKeyModalOpen}
+        onClose={() => setIsApiKeyModalOpen(false)}
+        currentApiKey={userApiKey}
+        onSaveApiKey={handleSaveApiKey}
+      />
     </div>
   );
 }
