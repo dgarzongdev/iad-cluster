@@ -1,0 +1,6 @@
+{
+  "name": "ClusterIQ - Analytics & Segmentation Studio",
+  "description": "Plataforma empresarial de analítica avanzada, segmentación de clientes mediante K-Means, validación estadística y generación de insights estratégicos de marketing con Gemini.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
